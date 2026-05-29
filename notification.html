@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알림 설정 — CarryOn</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="CarryOn">
+    </a>
+    <div class="nav-links">
+      <a href="notification.html" class="nav-link active">알림 설정</a>
+      <a href="cost.html" class="nav-cta">비용 비교하기</a>
+    </div>
+  </div>
+</nav>
+
+<main class="cost-main">
+  <div class="cost-inner">
+    <div class="page-header">
+      <a href="index.html" class="back-link">← 홈으로</a>
+      <h1>출발 전 알림 설정</h1>
+      <p>항공권 시간을 입력하면<br>딱 맞는 타이밍에 알림을 보내드려요</p>
+    </div>
+    <div class="input-card">
+      <div class="input-row vertical">
+        <div class="input-group full">
+          <label>항공편 출발 일시</label>
+          <input type="datetime-local" id="flight-time">
+        </div>
+        <div class="input-group full">
+          <label>공항 도착 예정 시간</label>
+          <input type="datetime-local" id="airport-time">
+        </div>
+      </div>
+      <button class="calc-btn" onclick="setAlerts()">알림 일정 확인하기</button>
+    </div>
+    <div class="result-section" id="alert-result" style="display:none">
+      <div class="result-title">📅 나의 알림 일정</div>
+      <div class="alert-timeline" id="alert-timeline"></div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-title">⏰ CarryOn 알림 방식</div>
+      <div class="tip-list">
+        <div class="tip-item"><span class="tip-icon">📋</span><span>D-7: 수하물 규정 요약 카드 발송</span></div>
+        <div class="tip-item"><span class="tip-icon">🧳</span><span>D-3: 짐 싸기 체크리스트 안내</span></div>
+        <div class="tip-item"><span class="tip-icon">⚖️</span><span>D-1: 무게 측정 유도 알림</span></div>
+        <div class="tip-item"><span class="tip-icon">🚨</span><span>당일: 공항 도착 2시간 전 최종 확인</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+function setAlerts() {
+  const ft = document.getElementById('flight-time').value;
+  if (!ft) { alert('항공편 출발 일시를 입력해주세요!'); return; }
+  const flightDate = new Date(ft);
+  const alerts = [
+    { label:'D-7', emoji:'📋', desc:'수하물 규정 요약 카드', date: new Date(flightDate - 7*86400000) },
+    { label:'D-3', emoji:'🧳', desc:'짐 싸기 체크리스트',   date: new Date(flightDate - 3*86400000) },
+    { label:'D-1', emoji:'⚖️', desc:'무게 측정 유도 알림',  date: new Date(flightDate - 1*86400000) },
+    { label:'당일', emoji:'🚨', desc:'출발 전 최종 확인',    date: new Date(flightDate - 2*3600000)  },
+  ];
+  const fmt = d => `${d.getMonth()+1}월 ${d.getDate()}일 ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('alert-timeline').innerHTML = alerts.map((a,i) => `
+    <div class="alert-item" style="animation-delay:${i*0.1}s">
+      <div class="alert-dot">${a.emoji}</div>
+      <div class="alert-info">
+        <div class="alert-label">${a.label}</div>
+        <div class="alert-desc">${a.desc}</div>
+        <div class="alert-time">${fmt(a.date)}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('alert-result').style.display = 'block';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비용 최적화 비교 — CarryOn</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="CarryOn">
+    </a>
+    <div class="nav-links">
+      <a href="notification.html" class="nav-link">알림 설정</a>
+      <a href="cost.html" class="nav-cta active">비용 비교하기</a>
+    </div>
+  </div>
+</nav>
+
+<main class="cost-main">
+  <div class="cost-inner">
+
+    <div class="page-header">
+      <a href="index.html" class="back-link">← 홈으로</a>
+      <h1>⚖️ 비용 최적화 비교</h1>
+      <p>현재 수하물 무게와 항공사를 입력하면<br>초과 여부를 자동 판단해 가장 저렴한 방법을 알려드려요</p>
+    </div>
+
+    <div class="input-card">
+      <div class="input-row">
+        <div class="input-group">
+          <label>항공사</label>
+          <select id="airline" onchange="calculate()">
+            <option value="korean">대한항공</option>
+            <option value="asiana">아시아나항공</option>
+            <option value="jeju">제주항공</option>
+            <option value="jinair">진에어</option>
+            <option value="tway">티웨이항공</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>현재 수하물 무게 (kg)</label>
+          <div class="number-input">
+            <button onclick="changeWeight(-0.5)">−</button>
+            <input type="number" id="currentweight" value="24" min="1" max="50" step="0.5" oninput="calculate()">
+            <button onclick="changeWeight(0.5)">+</button>
+          </div>
+          <div class="weight-status" id="weight-status"></div>
+        </div>
+        <div class="input-group">
+          <label>목적지</label>
+          <select id="destination" onchange="calculate()">
+            <option value="domestic">국내</option>
+            <option value="asia">아시아</option>
+            <option value="us" selected>미주/유럽</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calculate()">계산하기</button>
+    </div>
+
+    <div class="no-excess-banner" id="no-excess" style="display:none">
+      <div class="neb-icon">✅</div>
+      <div>
+        <div class="neb-title">초과 없음!</div>
+        <div class="neb-sub" id="neb-sub">현재 무게가 허용 범위 내에 있어요</div>
+      </div>
+    </div>
+
+    <div class="result-section" id="result">
+      <div class="result-title">📊 비용 비교 결과</div>
+      <div class="result-subtitle" id="result-subtitle">2kg 초과 기준</div>
+      <div class="options-grid">
+        <div class="option-card" id="card-mail" onclick="showDetail('mail')">
+          <div class="option-icon">📦</div>
+          <div class="option-name">국제 우편</div>
+          <div class="option-desc">EMS / 일반 항공</div>
+          <div class="option-price" id="price-mail">₩18,000</div>
+          <div class="option-note" id="note-mail">3~5일 소요</div>
+          <div class="tap-hint">탭하여 자세히 보기</div>
+          <div class="option-badge best" id="badge-mail" style="display:none">✓ 최저가</div>
+        </div>
+        <div class="option-card" id="card-storage" onclick="showDetail('storage')">
+          <div class="option-icon">🗄️</div>
+          <div class="option-name">공항 보관</div>
+          <div class="option-desc">라커 / 보관 서비스</div>
+          <div class="option-price" id="price-storage">₩8,000</div>
+          <div class="option-note" id="note-storage">당일 보관</div>
+          <div class="tap-hint">탭하여 자세히 보기</div>
+          <div class="option-badge best" id="badge-storage" style="display:none">✓ 최저가</div>
+        </div>
+        <div class="option-card" id="card-fee" onclick="showDetail('fee')">
+          <div class="option-icon">💳</div>
+          <div class="option-name">초과 요금 납부</div>
+          <div class="option-desc">항공사 현장 결제</div>
+          <div class="option-price" id="price-fee">₩50,000</div>
+          <div class="option-note" id="note-fee">즉시 처리</div>
+          <div class="tap-hint">탭하여 자세히 보기</div>
+          <div class="option-badge best" id="badge-fee" style="display:none">✓ 최저가</div>
+        </div>
+      </div>
+      <div class="save-banner" id="save-banner">
+        💡 <strong id="save-text">국제 우편</strong>을 선택하면 초과 요금 대비 <strong id="save-amount">₩32,000</strong> 절약!
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-title">💡 이런 방법도 있어요</div>
+      <div class="tip-list">
+        <div class="tip-item"><span class="tip-icon">👗</span><span>패딩 착용 시 무게 1~2kg 즉시 감소</span></div>
+        <div class="tip-item"><span class="tip-icon">👥</span><span>동행자 짐과 분배하면 추가 비용 0원</span></div>
+        <div class="tip-item"><span class="tip-icon">📮</span><span>공항 내 우체국에서 즉시 발송 가능</span></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Detail bottom-sheet modal -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail()">
+  <div class="detail-box" onclick="event.stopPropagation()">
+    <div class="detail-drag-handle"></div>
+    <div class="detail-box-header">
+      <div class="detail-box-icon" id="d-icon"></div>
+      <div>
+        <div class="detail-box-title" id="d-title"></div>
+        <div class="detail-box-sub"  id="d-sub"></div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()">×</button>
+    </div>
+    <div id="d-body"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+const airlineFees = {
+  korean:  { asia: 20000, us: 25000, domestic: 5000 },
+  asiana:  { asia: 18000, us: 23000, domestic: 5000 },
+  jeju:    { asia: 15000, us: 20000, domestic: 4000 },
+  jinair:  { asia: 14000, us: 19000, domestic: 4000 },
+  tway:    { asia: 13000, us: 18000, domestic: 3500 },
+};
+const allowances = {
+  korean:  { domestic: 20, asia: 23, us: 23 },
+  asiana:  { domestic: 20, asia: 23, us: 23 },
+  jeju:    { domestic: 15, asia: 15, us: 20 },
+  jinair:  { domestic: 15, asia: 15, us: 20 },
+  tway:    { domestic: 15, asia: 15, us: 20 },
+};
+const airlineNames = { korean:'대한항공', asiana:'아시아나항공', jeju:'제주항공', jinair:'진에어', tway:'티웨이항공' };
+const destNames    = { domestic:'국내', asia:'아시아', us:'미주/유럽' };
+
+function fmt(n) { return '₩' + n.toLocaleString(); }
+
+function getExcess() {
+  const airline   = document.getElementById('airline').value;
+  const dest      = document.getElementById('destination').value;
+  const currentKg = parseFloat(document.getElementById('currentweight').value) || 0;
+  const limit     = allowances[airline][dest];
+  const excess    = Math.round(Math.max(0, currentKg - limit) * 10) / 10;
+  return { airline, dest, currentKg, limit, excess };
+}
+
+function changeWeight(delta) {
+  const el = document.getElementById('currentweight');
+  let v = parseFloat(el.value) + delta;
+  if (v < 1)  v = 1;
+  if (v > 50) v = 50;
+  el.value = v;
+  calculate();
+}
+
+function calculate() {
+  const { airline, dest, currentKg, limit, excess } = getExcess();
+
+  /* weight status chip */
+  const statusEl = document.getElementById('weight-status');
+  if (excess <= 0) {
+    statusEl.textContent  = `✓ 허용 범위 내 (한도 ${limit}kg, 여유 ${Math.round((limit - currentKg)*10)/10}kg)`;
+    statusEl.className    = 'weight-status ok';
+  } else {
+    statusEl.textContent  = `⚠️ 허용 ${limit}kg 초과 → ${excess}kg 초과`;
+    statusEl.className    = 'weight-status over';
+  }
+
+  /* no-excess vs result 토글 */
+  const noExcessEl = document.getElementById('no-excess');
+  const resultEl   = document.getElementById('result');
+  if (excess <= 0) {
+    noExcessEl.style.display = 'flex';
+    resultEl.style.display   = 'none';
+    document.getElementById('neb-sub').textContent =
+      `현재 ${currentKg}kg · ${airlineNames[airline]} ${destNames[dest]} 허용 ${limit}kg — 초과 없음!`;
+    return;
+  }
+  noExcessEl.style.display = 'none';
+  resultEl.style.display   = 'block';
+
+  const kg = excess;
+  const mailBase    = { domestic:3000, asia:8000, us:15000 };
+  const mailKg      = { domestic:1000, asia:2500, us:4000 };
+  const mailCost    = mailBase[dest] + mailKg[dest] * kg;
+  const storageCost = dest==='domestic' ? 4000 : dest==='asia' ? 6000 : 8000;
+  const feeCost     = airlineFees[airline][dest] * kg;
+
+  document.getElementById('result-subtitle').textContent =
+    `현재 ${currentKg}kg · 허용 ${limit}kg → ${kg}kg 초과 (${airlineNames[airline]} · ${destNames[dest]})`;
+  document.getElementById('price-mail').textContent    = fmt(mailCost);
+  document.getElementById('price-storage').textContent = fmt(storageCost);
+  document.getElementById('price-fee').textContent     = fmt(feeCost);
+  document.getElementById('note-mail').textContent     =
+    dest==='domestic'?'1~2일 소요':dest==='asia'?'2~4일 소요':'5~7일 소요';
+
+  ['mail','storage','fee'].forEach(k => {
+    document.getElementById('badge-'+k).style.display = 'none';
+    document.getElementById('card-'+k).classList.remove('winner');
+  });
+
+  const prices = { mail:mailCost, storage:storageCost, fee:feeCost };
+  const minKey = Object.keys(prices).reduce((a,b) => prices[a]<prices[b]?a:b);
+  document.getElementById('badge-'+minKey).style.display = 'block';
+  document.getElementById('card-'+minKey).classList.add('winner');
+
+  const saved   = feeCost - prices[minKey];
+  const nameMap = { mail:'국제 우편', storage:'공항 보관', fee:'초과 요금 납부' };
+  if (saved > 0 && minKey !== 'fee') {
+    document.getElementById('save-text').textContent   = nameMap[minKey];
+    document.getElementById('save-amount').textContent = fmt(saved);
+    document.getElementById('save-banner').style.display = 'block';
+  } else {
+    document.getElementById('save-banner').style.display = 'none';
+  }
+}
+calculate();
+
+/* ── Detail modal ── */
+const mailBaseMap = { domestic:3000, asia:8000, us:15000 };
+const mailKgMap   = { domestic:1000, asia:2500, us:4000 };
+const storageMap  = { domestic:4000, asia:6000, us:8000 };
+const deliveryMap = { domestic:'1~2일', asia:'2~4일', us:'5~7일' };
+
+function showDetail(type) {
+  const { airline, dest, currentKg, limit, excess } = getExcess();
+  const kg = excess || 0.5;
+
+  const mailCost    = mailBaseMap[dest] + mailKgMap[dest] * kg;
+  const storageCost = storageMap[dest];
+  const feeCost     = airlineFees[airline][dest] * kg;
+
+  const meta = {
+    mail:    { icon:'📦', title:'국제 우편 (EMS)', sub:'공항 내 우체국에서 즉시 접수 가능' },
+    storage: { icon:'🗄️', title:'공항 보관 서비스', sub:'라커 또는 수하물 보관 서비스 이용' },
+    fee:     { icon:'💳', title:'초과 요금 납부', sub:'항공사 카운터 현장 결제' },
+  };
+  document.getElementById('d-icon').textContent  = meta[type].icon;
+  document.getElementById('d-title').textContent = meta[type].title;
+  document.getElementById('d-sub').textContent   = meta[type].sub;
+
+  let body = '';
+
+  if (type === 'mail') {
+    body = `
+      <div class="detail-section">
+        <div class="detail-section-heading">💰 요금 계산 기준</div>
+        <div class="detail-row">
+          <span class="d-label">기본 요금 (${destNames[dest]} 노선)</span>
+          <span class="d-value">${fmt(mailBaseMap[dest])}</span>
+        </div>
+        <div class="detail-row">
+          <span class="d-label">초과 ${kg}kg × kg당 ${fmt(mailKgMap[dest])}</span>
+          <span class="d-value">${fmt(mailKgMap[dest] * kg)}</span>
+        </div>
+        <div class="detail-row highlight">
+          <span class="d-label">합계</span>
+          <span class="d-value">${fmt(mailCost)}</span>
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-heading">목적지별 기본 요금 / kg당 추가 요금</div>
+        <table class="detail-table">
+          <thead><tr><th>목적지</th><th>기본요금</th><th>kg당</th></tr></thead>
+          <tbody>
+            ${[['domestic','국내'],['asia','아시아'],['us','미주/유럽']].map(([k,n])=>`
+              <tr class="${k===dest?'current':''}">
+                <td>${n}${k===dest?' ✓':''}</td>
+                <td>${fmt(mailBaseMap[k])}</td>
+                <td>${fmt(mailKgMap[k])}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-heading">⏱️ 배송 소요 기간 &amp; 이용 방법</div>
+        <ul class="detail-tips">
+          <li>${destNames[dest]} 기준 약 ${deliveryMap[dest]} 소요 (EMS 기준)</li>
+          <li>공항 내 우체국 또는 EMS 접수 창구 방문 후 즉시 발송</li>
+          <li>박스는 공항 내 구매 가능 (약 ₩1,000~2,000)</li>
+          <li>출발 2시간 전까지 접수 완료 필요</li>
+          <li>귀중품·액체류·리튬 배터리는 포함 불가</li>
+        </ul>
+      </div>`;
+  } else if (type === 'storage') {
+    body = `
+      <div class="detail-section">
+        <div class="detail-section-heading">💰 요금 계산 기준</div>
+        <div class="detail-row">
+          <span class="d-label">무게와 무관한 정액 요금 (1일 기준)</span>
+          <span class="d-value">-</span>
+        </div>
+        <div class="detail-row highlight">
+          <span class="d-label">${destNames[dest]} 기준 보관 요금</span>
+          <span class="d-value">${fmt(storageCost)}</span>
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-heading">목적지별 1일 보관 요금</div>
+        <table class="detail-table">
+          <thead><tr><th>목적지</th><th>1일 요금</th></tr></thead>
+          <tbody>
+            ${[['domestic','국내'],['asia','아시아'],['us','미주/유럽']].map(([k,n])=>`
+              <tr class="${k===dest?'current':''}">
+                <td>${n}${k===dest?' ✓':''}</td>
+                <td>${fmt(storageMap[k])}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-heading">📍 이용 방법 &amp; 추천 상황</div>
+        <ul class="detail-tips">
+          <li>인천공항 1층 · 3층 수하물 보관소 또는 셀프 라커 이용</li>
+          <li>귀국 후 찾아가거나 국내 택배 연계 배송 가능</li>
+          <li>불필요한 짐을 맡기고 가볍게 여행하고 싶을 때 추천</li>
+          <li>귀국 후 필요한 짐만 미리 국내에 보관할 때 유용</li>
+        </ul>
+      </div>`;
+  } else {
+    const feePerKg = airlineFees[airline][dest];
+    body = `
+      <div class="detail-section">
+        <div class="detail-section-heading">💰 요금 계산 기준</div>
+        <div class="detail-row">
+          <span class="d-label">${airlineNames[airline]} · ${destNames[dest]} · kg당 요금</span>
+          <span class="d-value">${fmt(feePerKg)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="d-label">초과 ${kg}kg × ${fmt(feePerKg)}</span>
+          <span class="d-value">${fmt(feeCost)}</span>
+        </div>
+        <div class="detail-row highlight">
+          <span class="d-label">현장 결제 합계</span>
+          <span class="d-value">${fmt(feeCost)}</span>
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-heading">항공사별 ${destNames[dest]} 노선 kg당 요금 비교</div>
+        <table class="detail-table">
+          <thead><tr><th>항공사</th><th>kg당</th><th>${kg}kg 초과 시</th></tr></thead>
+          <tbody>
+            ${Object.entries(airlineFees).map(([k,v])=>`
+              <tr class="${k===airline?'current':''}">
+                <td>${airlineNames[k]}${k===airline?' ✓':''}</td>
+                <td>${fmt(v[dest])}</td>
+                <td>${fmt(v[dest]*kg)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-heading">💡 절약 팁</div>
+        <ul class="detail-tips">
+          <li>출발 전 항공사 앱에서 추가 수하물 사전 구매 시 20~40% 저렴</li>
+          <li>왕복 구매 시 추가 할인 적용 가능한 경우 있음</li>
+          <li>체크인 카운터 대신 웹/앱 체크인으로 미리 처리 가능</li>
+        </ul>
+      </div>`;
+  }
+
+  document.getElementById('d-body').innerHTML = body;
+  document.getElementById('detail-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+</script>
+</body>
+</html>

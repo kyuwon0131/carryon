@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarryOn — 수하물 판단 도우미</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="CarryOn">
+    </a>
+    <div class="nav-links">
+      <a href="notification.html" class="nav-link">알림 설정</a>
+      <a href="cost.html" class="nav-cta">비용 비교하기</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">✈️ 수하물 초과, 이제 미리 막으세요</div>
+    <h1 class="hero-title">
+      짐 싸기 전에<br>
+      <span class="yellow">CarryOn</span>으로<br>
+      먼저 확인하세요
+    </h1>
+    <p class="hero-sub">공항에서 당황하지 않도록<br>출발 전 수하물 판단을 도와드립니다</p>
+    <div class="hero-btns">
+      <a href="cost.html" class="btn-primary">비용 비교하기 →</a>
+      <a href="notification.html" class="btn-secondary">알림 설정하기</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="weight-card">
+      <div class="wc-label">현재 무게</div>
+      <div class="wc-number">24.2<span>kg</span></div>
+      <div class="wc-bar-wrap">
+        <div class="wc-bar-fill" style="width:96%"></div>
+      </div>
+      <div class="wc-over">⚠️ +1.2kg 초과 예상</div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="features-inner">
+    <h2 class="section-title">CarryOn이 하는 일</h2>
+    <p class="section-sub">항목 위에 마우스를 올리면 세부 내용을 미리 볼 수 있어요</p>
+
+    <div class="feat-card" id="feat1">
+      <div class="feat-header" onclick="toggleFeat('feat1')">
+        <div class="feat-icon">⏰</div>
+        <div class="feat-main">
+          <div class="feat-title">출발 전 알림 시스템</div>
+          <div class="feat-arrow">›</div>
+        </div>
+      </div>
+      <div class="feat-body">
+        <div class="feat-sub"><strong>D-7 수하물 규정 안내</strong></div>
+        <div class="feat-sub"><strong>D-3 짐 싸기 체크리스트</strong></div>
+        <div class="feat-sub"><strong>D-1 무게 측정 유도 알림</strong></div>
+        <div class="feat-sub"><strong>당일 출발 전 최종 확인</strong></div>
+      </div>
+    </div>
+
+    <div class="feat-card feat-nav" id="feat2">
+      <div class="feat-header" onclick="window.location.href='cost.html'">
+        <div class="feat-icon">⚖️</div>
+        <div class="feat-main">
+          <div class="feat-title">비용 최적화 비교</div>
+          <div class="feat-arrow">→</div>
+        </div>
+      </div>
+      <div class="feat-body">
+        <div class="feat-sub"><strong>국제 우편 vs 보관 vs 초과 납부 자동 비교</strong></div>
+        <div class="feat-sub"><strong>가장 저렴한 옵션 하이라이트</strong></div>
+        <div class="feat-sub"><strong>초과 무게 입력 시 즉시 계산</strong></div>
+        <a href="cost.html" class="feat-link">지금 바로 계산하기 →</a>
+      </div>
+    </div>
+
+    <div class="feat-card" id="feat3">
+      <div class="feat-header" onclick="toggleFeat('feat3')">
+        <div class="feat-icon">👥</div>
+        <div class="feat-main">
+          <div class="feat-title">동행자 짐 분배</div>
+          <div class="feat-arrow">›</div>
+        </div>
+      </div>
+      <div class="feat-body">
+        <div class="feat-sub"><strong>일행 전체 무게 합산 현황</strong></div>
+        <div class="feat-sub"><strong>최적 분배 추천</strong></div>
+        <div class="feat-sub"><strong>그룹 알림 연동</strong></div>
+      </div>
+    </div>
+
+    <div class="feat-card" id="feat4">
+      <div class="feat-header" onclick="toggleFeat('feat4')">
+        <div class="feat-icon">🏆</div>
+        <div class="feat-main">
+          <div class="feat-title">리워드 시스템</div>
+          <div class="feat-arrow">›</div>
+        </div>
+      </div>
+      <div class="feat-body">
+        <div class="feat-sub"><strong>초과 없이 통과 시 포인트 적립</strong></div>
+        <div class="feat-sub"><strong>라운지 이용권 · 수하물 추가 허용 쿠폰</strong></div>
+        <div class="feat-sub"><strong>Bronze → Silver → Gold → Platinum</strong></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-logo"><img src="assets/logo.jpeg" alt="CarryOn"></div>
+    <h2>지금 바로 비용을 비교해보세요</h2>
+    <p>초과 무게만 입력하면 가장 저렴한 방법을 알려드립니다</p>
+    <a href="cost.html" class="btn-primary large">비용 비교하기 →</a>
+  </div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
