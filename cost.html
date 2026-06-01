@@ -96,6 +96,14 @@
             <option value="us" selected>미주/유럽</option>
           </select>
         </div>
+        <div class="input-group">
+          <label>여행 기간 (박)</label>
+          <div class="number-input">
+            <button onclick="changeDays(-1)">−</button>
+            <input type="number" id="tripdays" value="3" min="1" max="30" step="1" oninput="calculate()">
+            <button onclick="changeDays(1)">+</button>
+          </div>
+        </div>
       </div>
       <button class="calc-btn" onclick="calculate()">계산하기</button>
     </div>
@@ -212,6 +220,15 @@ function changeWeight(delta) {
   calculate();
 }
 
+function changeDays(delta) {
+  const el = document.getElementById('tripdays');
+  let v = parseInt(el.value) + delta;
+  if (v < 1)  v = 1;
+  if (v > 30) v = 30;
+  el.value = v;
+  calculate();
+}
+
 function calculate() {
   const { airline, dest, currentKg, limit, excess } = getExcess();
 
@@ -238,20 +255,24 @@ function calculate() {
   noExcessEl.style.display = 'none';
   resultEl.style.display   = 'block';
 
-  const kg = excess;
-  const mailBase    = { domestic:3000, asia:8000, us:15000 };
-  const mailKg      = { domestic:1000, asia:2500, us:4000 };
-  const mailCost    = mailBase[dest] + mailKg[dest] * kg;
-  const storageCost = dest==='domestic' ? 4000 : dest==='asia' ? 6000 : 8000;
-  const feeCost     = airlineFees[airline][dest] * kg;
+  const kg      = excess;
+  const nights  = parseInt(document.getElementById('tripdays').value) || 1;
+  const mailBase      = { domestic:3000, asia:8000, us:15000 };
+  const mailKg        = { domestic:1000, asia:2500, us:4000 };
+  const mailCost      = mailBase[dest] + mailKg[dest] * kg;
+  const storagePerDay = dest==='domestic' ? 4000 : dest==='asia' ? 6000 : 8000;
+  const storageCost   = storagePerDay * nights;
+  const feeCost       = airlineFees[airline][dest] * kg;
 
   document.getElementById('result-subtitle').textContent =
-    `현재 ${currentKg}kg · 허용 ${limit}kg → ${kg}kg 초과 (${airlineNames[airline]} · ${destNames[dest]})`;
+    `현재 ${currentKg}kg · 허용 ${limit}kg → ${kg}kg 초과 (${airlineNames[airline]} · ${destNames[dest]} · ${nights}박)`;
   document.getElementById('price-mail').textContent    = fmt(mailCost);
   document.getElementById('price-storage').textContent = fmt(storageCost);
   document.getElementById('price-fee').textContent     = fmt(feeCost);
   document.getElementById('note-mail').textContent     =
     dest==='domestic'?'1~2일 소요':dest==='asia'?'2~4일 소요':'5~7일 소요';
+  document.getElementById('note-storage').textContent  =
+    `${fmt(storagePerDay)} × ${nights}박`;
 
   ['mail','storage','fee'].forEach(k => {
     document.getElementById('badge-'+k).style.display = 'none';
@@ -283,11 +304,13 @@ const deliveryMap = { domestic:'1~2일', asia:'2~4일', us:'5~7일' };
 
 function showDetail(type) {
   const { airline, dest, currentKg, limit, excess } = getExcess();
-  const kg = excess || 0.5;
+  const kg     = excess || 0.5;
+  const nights = parseInt(document.getElementById('tripdays').value) || 1;
 
-  const mailCost    = mailBaseMap[dest] + mailKgMap[dest] * kg;
-  const storageCost = storageMap[dest];
-  const feeCost     = airlineFees[airline][dest] * kg;
+  const mailCost      = mailBaseMap[dest] + mailKgMap[dest] * kg;
+  const storagePerDay = storageMap[dest];
+  const storageCost   = storagePerDay * nights;
+  const feeCost       = airlineFees[airline][dest] * kg;
 
   const meta = {
     mail:    { icon:'📦', title:'국제 우편 (EMS)', sub:'공항 내 우체국에서 즉시 접수 가능' },
@@ -346,23 +369,28 @@ function showDetail(type) {
       <div class="detail-section">
         <div class="detail-section-heading">💰 요금 계산 기준</div>
         <div class="detail-row">
-          <span class="d-label">무게와 무관한 정액 요금 (1일 기준)</span>
-          <span class="d-value">-</span>
+          <span class="d-label">1일 보관 요금 (${destNames[dest]})</span>
+          <span class="d-value">${fmt(storagePerDay)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="d-label">${fmt(storagePerDay)} × ${nights}박</span>
+          <span class="d-value">${fmt(storageCost)}</span>
         </div>
         <div class="detail-row highlight">
-          <span class="d-label">${destNames[dest]} 기준 보관 요금</span>
+          <span class="d-label">합계 (${nights}박 기준)</span>
           <span class="d-value">${fmt(storageCost)}</span>
         </div>
       </div>
       <div class="detail-section">
         <div class="detail-section-heading">목적지별 1일 보관 요금</div>
         <table class="detail-table">
-          <thead><tr><th>목적지</th><th>1일 요금</th></tr></thead>
+          <thead><tr><th>목적지</th><th>1일</th><th>${nights}박 합계</th></tr></thead>
           <tbody>
             ${[['domestic','국내'],['asia','아시아'],['us','미주/유럽']].map(([k,n])=>`
               <tr class="${k===dest?'current':''}">
                 <td>${n}${k===dest?' ✓':''}</td>
                 <td>${fmt(storageMap[k])}</td>
+                <td>${fmt(storageMap[k] * nights)}</td>
               </tr>`).join('')}
           </tbody>
         </table>
@@ -372,8 +400,8 @@ function showDetail(type) {
         <ul class="detail-tips">
           <li>인천공항 1층 · 3층 수하물 보관소 또는 셀프 라커 이용</li>
           <li>귀국 후 찾아가거나 국내 택배 연계 배송 가능</li>
+          <li>단기 여행(1~2박)에 비용 효율적, 장기일수록 우편 발송이 유리</li>
           <li>불필요한 짐을 맡기고 가볍게 여행하고 싶을 때 추천</li>
-          <li>귀국 후 필요한 짐만 미리 국내에 보관할 때 유용</li>
         </ul>
       </div>`;
   } else {
