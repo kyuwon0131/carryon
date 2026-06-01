@@ -269,10 +269,16 @@ function calculate() {
   document.getElementById('price-mail').textContent    = fmt(mailCost);
   document.getElementById('price-storage').textContent = fmt(storageCost);
   document.getElementById('price-fee').textContent     = fmt(feeCost);
-  document.getElementById('note-mail').textContent     =
-    dest==='domestic'?'1~2일 소요':dest==='asia'?'2~4일 소요':'5~7일 소요';
-  document.getElementById('note-storage').textContent  =
+  const mailTooSlow = nights < 5;
+  document.getElementById('note-mail').textContent =
+    mailTooSlow
+      ? '⚠️ 여행 중 미도착 가능'
+      : dest==='domestic'?'1~2일 소요':dest==='asia'?'2~4일 소요':'5~7일 소요';
+  document.getElementById('note-storage').textContent =
     `${fmt(storagePerDay)} × ${nights}박`;
+
+  const mailCard = document.getElementById('card-mail');
+  mailTooSlow ? mailCard.classList.add('mail-unavailable') : mailCard.classList.remove('mail-unavailable');
 
   ['mail','storage','fee'].forEach(k => {
     document.getElementById('badge-'+k).style.display = 'none';
@@ -280,7 +286,8 @@ function calculate() {
   });
 
   const prices = { mail:mailCost, storage:storageCost, fee:feeCost };
-  const minKey = Object.keys(prices).reduce((a,b) => prices[a]<prices[b]?a:b);
+  const eligible = mailTooSlow ? ['storage','fee'] : ['mail','storage','fee'];
+  const minKey = eligible.reduce((a,b) => prices[a]<prices[b]?a:b);
   document.getElementById('badge-'+minKey).style.display = 'block';
   document.getElementById('card-'+minKey).classList.add('winner');
 
